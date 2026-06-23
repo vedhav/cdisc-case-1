@@ -21,11 +21,11 @@ RUN install2.r --error --skipinstalled jsonlite haven digest
 COPY synthsdtm /app/synthsdtm
 RUN R CMD INSTALL /app/synthsdtm
 
-# --- CDISC CORE: cdisc-rules-engine pinned to a commit whose bundled
-#     resources/cache includes the sdtmct-2026-03-27 package. Exposed as `core`. ---
-ARG CORE_ENGINE_COMMIT=487da0ccd5adcbc8d50a7b5dce8564202de27e9b
-RUN git clone https://github.com/cdisc-org/cdisc-rules-engine.git /app/cdisc-rules-engine \
- && git -C /app/cdisc-rules-engine checkout "${CORE_ENGINE_COMMIT}" \
+# --- CDISC CORE: cdisc-rules-engine. Shallow clone of a release tag (history-free)
+#     so the image build completes on a cold builder; the tag ships the offline
+#     resources/cache. Exposed as `core`. ---
+ARG CORE_ENGINE_REF=v0.16.0
+RUN git clone --depth 1 --branch "${CORE_ENGINE_REF}" https://github.com/cdisc-org/cdisc-rules-engine.git /app/cdisc-rules-engine \
  && pip3 install --no-cache-dir --break-system-packages -r /app/cdisc-rules-engine/requirements.txt
 RUN printf '#!/bin/bash\ncd /app/cdisc-rules-engine && exec python3 core.py "$@"\n' > /usr/local/bin/core \
  && chmod +x /usr/local/bin/core

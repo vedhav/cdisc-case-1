@@ -27,8 +27,12 @@ cat "$EXAMPLE"    # a minimal, valid config to mirror
 ## Workflow
 
 1. Read `/workspace/study.json` and the schema + example above.
-2. Map the record into a config. Keep it **simple and general** — a minimal valid
-   config for any trial:
+2. **Start from `toy_parallel.json` as the template and keep ALL of its
+   structural fields** — `studyStart`, `screenLagDays`, `enrollmentWindowDays`,
+   `periods`, `knobs`, and `sourceActivities`. These are required for generation:
+   omitting `studyStart`/`screenLagDays`/`enrollmentWindowDays`/`periods` leaves
+   subjects with no day-1 date and `simulate_sdtm` fails. Then change only the
+   study-specific values below. Keep it simple and general:
    - `studyId`: the NCT id (`protocolSection.identificationModule.nctId`).
    - `sponsorStudyId`: org study id if present.
    - `design`: `parallel`, `crossover`, or `single-group` — infer from
