@@ -65,6 +65,10 @@ rchoice <- function(x) {
 #' @return A numeric scalar.
 #' @export
 gen_value <- function(lo, hi, decimals = NULL) {
+  if (is.null(lo) || is.null(hi) || length(lo) == 0L || length(hi) == 0L ||
+      is.na(lo) || is.na(hi)) {
+    return(NA_real_)
+  }
   if (is.null(decimals) || decimals == 0) {
     return(rint(lo, hi))
   }
@@ -73,7 +77,7 @@ gen_value <- function(lo, hi, decimals = NULL) {
 
 # Format a number for a CSV cell: integers without a trailing ".0".
 fmt_num <- function(v) {
-  if (is.null(v) || identical(v, "")) {
+  if (is.null(v) || length(v) == 0L || identical(v, "") || (length(v) == 1L && is.na(v))) {
     return("")
   }
   if (is.numeric(v) && v == round(v)) {

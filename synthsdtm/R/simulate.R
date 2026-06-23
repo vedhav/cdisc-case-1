@@ -11,7 +11,9 @@ rows_to_df <- function(rows, field_names) {
   cols <- lapply(field_names, function(nm) {
     vapply(rows, function(r) {
       val <- r[[nm]]
-      if (is.null(val)) "" else if (is.numeric(val)) fmt_num(val) else as.character(val)
+      if (is.null(val) || length(val) == 0L) return("")
+      v <- val[[1L]]
+      if (is.numeric(v)) fmt_num(v) else as.character(v)
     }, character(1))
   })
   names(cols) <- field_names

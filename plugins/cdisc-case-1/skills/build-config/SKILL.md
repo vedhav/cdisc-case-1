@@ -44,16 +44,21 @@ cat "$EXAMPLE"    # a minimal, valid config to mirror
    - `domains`: a small in-scope set that is always safe — `DM` (`builder: dm`),
      `VS` (`builder: findings` with a couple of vitals tests occurring at all
      three visits), `EX` (`builder: ex`), `AE` (`builder: ae`), `DS` (`builder: ds`).
+     **Every `findings` test MUST set numeric `low` and `high` and a `unit`** (e.g.
+     SYSBP 100–150 mmHg, PULSE 55–95 beats/min). Never leave `low`/`high` null and
+     never use an empty array for any field — the generator needs real bounds.
    - `knobs`: sensible defaults (e.g. `aeIncidence: 0.5`, `discontinuationRate: 0.0`).
    - `sourceActivities`: optional; you may set `bcNcit: null`.
 3. Write the config to BOTH `/workspace/study_config.json` (for the next step)
    and `/output/study_config.json` (a downloadable Output File).
-4. **Self-validate** — the config must be consumable by synthsdtm:
+4. **Self-validate** — the config must both resolve a spec AND generate without
+   error (build_spec alone is not enough — generation can still fail on, e.g., a
+   findings test with missing bounds):
    ```bash
-   Rscript -e 'synthsdtm::build_spec("/workspace/study_config.json", out_dir=tempfile())' && echo CONFIG_OK
+   Rscript -e 'cfg<-"/workspace/study_config.json"; b<-synthsdtm::build_spec(cfg,out_dir=tempfile()); synthsdtm::simulate_sdtm(cfg,b$spec,ct=b$ct_cache,n_subjects=4); cat("CONFIG_OK\n")'
    ```
    If it errors, read the message, fix the config, and repeat until it prints
-   `CONFIG_OK`. Do not finish with an invalid config.
+   `CONFIG_OK`. Do not finish with a config that fails this check.
 
 ## Constraints
 
