@@ -1,0 +1,70 @@
+{
+  "studyId": "TOY-PARALLEL-01",
+  "sponsorStudyId": "TOY01",
+  "design": "parallel",
+  "studyStart": "2024-01-15",
+  "country": "USA",
+  "sites": ["0001", "0002"],
+  "route": "ORAL",
+  "enrollmentWindowDays": 60,
+  "screenLagDays": [7, 14],
+
+  "cohorts": [
+    {"armcd": "ACTIVE",  "arm": "Active 50 mg", "n": 1, "treatments": ["Drug X 50 mg"]},
+    {"armcd": "PLACEBO", "arm": "Placebo",      "n": 1, "treatments": ["Placebo"]}
+  ],
+
+  "demographics": {
+    "ageRange": [18, 65], "ageUnit": "YEARS", "sexes": ["M", "F"],
+    "races": ["WHITE", "ASIAN"], "ethnicities": ["NOT HISPANIC OR LATINO"],
+    "heightCm": [155, 185], "weightKg": [55, 100]
+  },
+
+  "periods": [
+    {"label": "DAY 1", "startOffset": 0, "endOffset": 0, "visitNum": 2, "epoch": "TREATMENT"}
+  ],
+
+  "visitGrid": {
+    "ENC_SCR": {"label": "SCREENING", "dayOffset": -7, "visitNum": 1, "epoch": "SCREENING"},
+    "ENC_D1":  {"label": "DAY 1",     "dayOffset": 1,  "visitNum": 2, "epoch": "TREATMENT"},
+    "ENC_FU":  {"label": "FOLLOW-UP", "dayOffset": 14, "visitNum": 3, "epoch": "FOLLOW-UP"}
+  },
+
+  "knobs": {
+    "discontinuationRate": 0.0,
+    "completionOffsetDays": 14,
+    "aeIncidence": 0.5,
+    "aeEventsPerSubject": [1, 2],
+    "comorbidityCount": [0, 1],
+    "ieExceptionCount": 0
+  },
+
+  "sourceActivities": {
+    "DM": [{"activityId": "ACT_DM", "activityName": "Demography", "bcNcit": null, "protocolPage": 5}],
+    "VS": [{"activityId": "ACT_VS", "activityName": "Vital signs", "bcNcit": "C54706", "protocolPage": 6}],
+    "EX": [{"activityId": "ACT_DOSE", "activityName": "Study drug administration", "bcNcit": null, "protocolPage": 7}],
+    "AE": [{"activityId": "ACT_AE", "activityName": "Adverse events", "bcNcit": null, "protocolPage": 8}],
+    "DS": [{"activityId": "ACT_DISP", "activityName": "Disposition", "bcNcit": null, "protocolPage": 9}]
+  },
+
+  "domains": {
+    "DM": {"builder": "dm"},
+    "VS": {
+      "builder": "findings",
+      "tests": [
+        {"testcd": "SYSBP", "test": "Systolic Blood Pressure",  "unit": "mmHg", "pos": "SITTING", "low": 100, "high": 150, "decimals": null, "occursAt": ["ENC_SCR", "ENC_D1", "ENC_FU"], "sourceActivity": "ACT_VS"},
+        {"testcd": "PULSE", "test": "Pulse Rate",               "unit": "beats/min", "pos": "SITTING", "low": 55, "high": 95, "decimals": null, "occursAt": ["ENC_SCR", "ENC_D1", "ENC_FU"], "sourceActivity": "ACT_VS"}
+      ]
+    },
+    "EX": {"builder": "ex"},
+    "AE": {
+      "builder": "ae",
+      "onsetWindowDays": [0, 14], "endLagDays": [1, 5],
+      "pool": ["Headache", "Nausea"],
+      "outcomes": ["RECOVERED/RESOLVED", "NOT RECOVERED/NOT RESOLVED"],
+      "openOutcome": "NOT RECOVERED/NOT RESOLVED",
+      "actions": ["DOSE NOT CHANGED", "DRUG WITHDRAWN"]
+    },
+    "DS": {"builder": "ds"}
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "cdisc-case-1",
+  "description": "Skill for the CDISC Case 1 workflow. build-config maps a ClinicalTrials.gov study record into a synthsdtm study_config.json.",
+  "author": {
+    "name": "vedha"
+  }
+}

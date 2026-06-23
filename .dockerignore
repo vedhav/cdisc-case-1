@@ -1,0 +1,12 @@
+# Image needs: synthsdtm/ (the R package) + container/ scripts. CORE is cloned in
+# the Dockerfile. Skills live in the repo (read via skillsDir), not the image.
+.git
+**/.venv
+**/__pycache__
+**/*.pyc
+**/.Rproj.user
+.DS_Store
+
+plugins
+src
+README.md

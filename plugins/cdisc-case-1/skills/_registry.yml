@@ -1,0 +1,13 @@
+version: "1.0"
+standard: "agentskills.io/specification"
+total_skills: 1
+
+domains:
+  cdisc-case-1:
+    description: Map a ClinicalTrials.gov record into a synthsdtm study config
+    skills:
+      - id: build-config
+        path: build-config/SKILL.md
+        complexity: intermediate
+        language: multi
+        description: Turn a CT.gov v2 study record into a schema-valid synthsdtm study_config.json

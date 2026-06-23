@@ -1,0 +1,160 @@
+{
+  "studyId": "NCT04556760",
+  "sponsorStudyId": "D6470C00005",
+  "design": "crossover",
+  "studyStart": "2020-11-26",
+  "country": "USA",
+  "sites": ["0001", "0002", "0003"],
+  "route": "ORAL",
+  "enrollmentWindowDays": 120,
+  "screenLagDays": [10, 14],
+
+  "cohorts": [
+    {"armcd": "COHORT1", "arm": "Cohort 1", "n": 24, "treatments": ["AZD9567 72 mg", "Prednisolone 40 mg"]},
+    {"armcd": "COHORT2", "arm": "Cohort 2", "n": 8,  "treatments": ["AZD9567 40 mg", "Prednisolone 20 mg"]},
+    {"armcd": "COHORT3", "arm": "Cohort 3", "n": 8,  "treatments": ["Placebo", "Prednisolone 5 mg"]}
+  ],
+
+  "demographics": {
+    "ageRange": [40, 75],
+    "ageUnit": "YEARS",
+    "sexes": ["M", "F"],
+    "races": ["WHITE", "BLACK OR AFRICAN AMERICAN", "ASIAN", "AMERICAN INDIAN OR ALASKA NATIVE"],
+    "ethnicities": ["HISPANIC OR LATINO", "NOT HISPANIC OR LATINO"],
+    "heightCm": [150, 190],
+    "weightKg": [60, 110]
+  },
+
+  "periods": [
+    {"label": "DAY 1 (TP1)",  "startOffset": 0,  "endOffset": 2,  "visitNum": 3, "epoch": "TREATMENT"},
+    {"label": "DAY 26 (TP2)", "startOffset": 25, "endOffset": 27, "visitNum": 5, "epoch": "TREATMENT"}
+  ],
+
+  "visitGrid": {
+    "ENC_V1": {"label": "SCREENING",    "dayOffset": -14, "visitNum": 1, "epoch": "SCREENING"},
+    "ENC_V3": {"label": "DAY 4 (TP1)",  "dayOffset": 4,   "visitNum": 3, "epoch": "TREATMENT"},
+    "ENC_V5": {"label": "DAY 31 (TP2)", "dayOffset": 31,  "visitNum": 5, "epoch": "TREATMENT"},
+    "ENC_V6": {"label": "FOLLOW-UP",    "dayOffset": 61,  "visitNum": 6, "epoch": "FOLLOW-UP"}
+  },
+
+  "knobs": {
+    "discontinuationRate": 0.05,
+    "discoReason": {"decod": "ADVERSE EVENT", "term": "Adverse event"},
+    "discoEndOffsetDays": [5, 30],
+    "completionOffsetDays": 61,
+    "aeIncidence": 0.55,
+    "aeEventsPerSubject": [1, 3],
+    "aeSeverityWeights": [6, 3, 1],
+    "aeRelChoices": ["Y", "N"],
+    "aeActnWeights": [8, 1, 1],
+    "conmedPrevalence": 0.40,
+    "comorbidityCount": [0, 2],
+    "ieExceptionCount": 2
+  },
+
+  "sourceActivities": {
+    "DM": [{"activityId": "ACT_DM", "activityName": "Demography", "bcNcit": null, "protocolPage": 20}],
+    "IE": [{"activityId": "ACT_ELIG", "activityName": "Verify eligibility criteria", "bcNcit": null, "protocolPage": 20}],
+    "MH": [{"activityId": "ACT_MH", "activityName": "Medical History", "bcNcit": null, "protocolPage": 20}],
+    "VS": [{"activityId": "ACT_VS", "activityName": "Vital signs (SBP, DBP, pulse, temperature)", "bcNcit": "C54706", "protocolPage": 20}],
+    "EG": [{"activityId": "ACT_ECG", "activityName": "Safety ECG (12-lead)", "bcNcit": "C71355", "protocolPage": 20}],
+    "LB": [{"activityId": "ACT_MMTT", "activityName": "MMTT (glucose, insulin, C-peptide, GLP-1, GIP, glucagon, FFAs)", "bcNcit": "C105585", "protocolPage": 23}],
+    "EX": [{"activityId": "ACT_DOSE", "activityName": "IMP administration (AZD9567 / prednisolone / placebo)", "bcNcit": null, "protocolPage": 22}],
+    "CM": [{"activityId": "ACT_CM", "activityName": "Concomitant medication", "bcNcit": null, "protocolPage": 21}],
+    "AE": [{"activityId": "ACT_AE", "activityName": "Adverse events", "bcNcit": null, "protocolPage": 21}],
+    "DS": [{"activityId": "ACT_DISP", "activityName": "Study completion / disposition", "bcNcit": null, "protocolPage": 24}]
+  },
+
+  "domains": {
+    "DM": {"builder": "dm"},
+
+    "IE": {
+      "builder": "ie",
+      "exceptions": [
+        {"testcd": "INCL02", "test": "HbA1c within protocol range", "cat": "INCLUSION",
+         "orres": "N", "stresc": "N"}
+      ]
+    },
+
+    "MH": {
+      "builder": "mh",
+      "primaryDiagnosis": "Type 2 diabetes mellitus",
+      "primaryOnsetYearsAgo": [1, 10],
+      "comorbidities": ["Hypertension", "Hypercholesterolaemia", "Obesity", "Osteoarthritis",
+                        "Gastro-oesophageal reflux disease"],
+      "comorbidityOnsetYearsAgo": [1, 8]
+    },
+
+    "VS": {
+      "builder": "findings",
+      "tests": [
+        {"testcd": "SYSBP", "test": "Systolic Blood Pressure",  "unit": "mmHg", "pos": "SUPINE",   "low": 105, "high": 158, "decimals": null, "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_VS"},
+        {"testcd": "DIABP", "test": "Diastolic Blood Pressure", "unit": "mmHg", "pos": "SUPINE",   "low": 62,  "high": 96,  "decimals": null, "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_VS"},
+        {"testcd": "PULSE", "test": "Pulse Rate",               "unit": "beats/min", "pos": "SUPINE", "low": 54, "high": 92, "decimals": null, "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_VS"},
+        {"testcd": "TEMP",  "test": "Temperature",              "unit": "C", "pos": "SUPINE",       "low": 36.2, "high": 37.4, "decimals": 1, "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_VS"},
+        {"testcd": "HEIGHT", "test": "Height", "unit": "cm", "pos": "STANDING", "subjectAttr": "height", "occursAt": ["ENC_V1"], "sourceActivity": "ACT_HTWT"},
+        {"testcd": "WEIGHT", "test": "Weight", "unit": "kg", "pos": "STANDING", "subjectAttr": "weight", "occursAt": ["ENC_V1"], "sourceActivity": "ACT_HTWT"}
+      ]
+    },
+
+    "EG": {
+      "builder": "findings",
+      "tests": [
+        {"testcd": "QTCFAG", "test": "QTcF Interval, Aggregate", "unit": "ms", "low": 380, "high": 455, "decimals": null, "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_ECG"},
+        {"testcd": "EGHRMN", "test": "ECG Mean Heart Rate",      "unit": "beats/min", "low": 55, "high": 90, "decimals": null, "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_ECG"},
+        {"testcd": "PRAG",  "test": "PR Interval, Aggregate",   "unit": "ms", "low": 120, "high": 200, "decimals": null, "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_ECG"},
+        {"testcd": "QRSAG", "test": "QRS Duration, Aggregate",  "unit": "ms", "low": 80, "high": 110, "decimals": null, "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_ECG"}
+      ]
+    },
+
+    "LB": {
+      "builder": "findings",
+      "tests": [
+        {"testcd": "GLUC",     "test": "Glucose",         "category": "CHEMISTRY",  "specimen": "SERUM", "unit": "mmol/L", "low": 6.5, "high": 12.0, "decimals": 1, "refLow": 4.1,  "refHigh": 5.9,  "fast": "Y", "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_MMTT"},
+        {"testcd": "INSULIN",  "test": "Insulin",         "category": "CHEMISTRY",  "specimen": "SERUM", "unit": "pmol/L", "low": 40,  "high": 160,  "decimals": 0, "refLow": 18,   "refHigh": 173,  "fast": "Y", "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_MMTT"},
+        {"testcd": "CPEPTIDE", "test": "C-peptide",       "category": "CHEMISTRY",  "specimen": "SERUM", "unit": "nmol/L", "low": 0.4, "high": 1.6,  "decimals": 2, "refLow": 0.37, "refHigh": 1.47, "fast": "Y", "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_MMTT"},
+        {"testcd": "HBA1C",    "test": "Hemoglobin A1C",  "category": "CHEMISTRY",  "specimen": "BLOOD", "unit": "%",      "low": 6.0, "high": 9.0,  "decimals": 1, "refLow": 4.0,  "refHigh": 6.0,  "fast": "Y", "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_HBA1C"},
+        {"testcd": "CHOL",     "test": "Cholesterol",     "category": "CHEMISTRY",  "specimen": "SERUM", "unit": "mmol/L", "low": 3.5, "high": 6.8,  "decimals": 1, "refLow": 0,    "refHigh": 5.2,  "fast": "Y", "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_CHEM"},
+        {"testcd": "TRIG",     "test": "Triglycerides",   "category": "CHEMISTRY",  "specimen": "SERUM", "unit": "mmol/L", "low": 0.8, "high": 3.2,  "decimals": 2, "refLow": 0,    "refHigh": 1.7,  "fast": "Y", "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_CHEM"},
+        {"testcd": "HDL",      "test": "HDL Cholesterol", "category": "CHEMISTRY",  "specimen": "SERUM", "unit": "mmol/L", "low": 0.8, "high": 1.8,  "decimals": 2, "refLow": 1.0,  "refHigh": 2.2,  "fast": "Y", "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_CHEM"},
+        {"testcd": "SODIUM",   "test": "Sodium",          "category": "CHEMISTRY",  "specimen": "SERUM", "unit": "mmol/L", "low": 135, "high": 145,  "decimals": 0, "refLow": 136,  "refHigh": 145,  "fast": "Y", "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_CHEM"},
+        {"testcd": "K",        "test": "Potassium",       "category": "CHEMISTRY",  "specimen": "SERUM", "unit": "mmol/L", "low": 3.6, "high": 5.1,  "decimals": 1, "refLow": 3.5,  "refHigh": 5.1,  "fast": "Y", "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_CHEM"},
+        {"testcd": "CORTISOL", "test": "Cortisol",        "category": "CHEMISTRY",  "specimen": "SERUM", "unit": "nmol/L", "low": 150, "high": 550,  "decimals": 0, "refLow": 138,  "refHigh": 635,  "fast": "Y", "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_CORT"},
+        {"testcd": "HGB",      "test": "Hemoglobin",      "category": "HEMATOLOGY", "specimen": "BLOOD", "unit": "g/L",    "low": 120, "high": 165,  "decimals": 0, "refLow": 120,  "refHigh": 160,  "fast": "N", "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_HEM"},
+        {"testcd": "HCT",      "test": "Hematocrit",      "category": "HEMATOLOGY", "specimen": "BLOOD", "unit": "%",      "low": 37,   "high": 50,   "decimals": 0, "refLow": 36,   "refHigh": 48,   "fast": "N", "occursAt": ["ENC_V1", "ENC_V3", "ENC_V5", "ENC_V6"], "sourceActivity": "ACT_HEM"},
+        {"testcd": "K",        "test": "Potassium",       "category": "URINALYSIS", "specimen": "URINE", "unit": "mmol/L", "low": 20,  "high": 80,   "decimals": 0, "refLow": null, "refHigh": null, "fast": "N", "occursAt": ["ENC_V3", "ENC_V5"], "sourceActivity": "ACT_UNAK"},
+        {"testcd": "SODIUM",   "test": "Sodium",          "category": "URINALYSIS", "specimen": "URINE", "unit": "mmol/L", "low": 40,  "high": 220,  "decimals": 0, "refLow": null, "refHigh": null, "fast": "N", "occursAt": ["ENC_V3", "ENC_V5"], "sourceActivity": "ACT_UNAK"}
+      ]
+    },
+
+    "EX": {"builder": "ex"},
+
+    "CM": {
+      "builder": "cm",
+      "baseline": {"name": "METFORMIN", "doses": [500, 850, 1000], "unit": "mg", "indication": "Type 2 diabetes mellitus",
+                   "startDaysBeforeScreen": [60, 800]},
+      "extra": {
+        "startDaysBeforeScreen": [30, 400],
+        "options": [
+          {"name": "DAPAGLIFLOZIN", "dose": 10,  "indication": "Type 2 diabetes mellitus"},
+          {"name": "SITAGLIPTIN",   "dose": 100, "indication": "Type 2 diabetes mellitus"},
+          {"name": "RAMIPRIL",      "dose": 5,   "indication": "Comorbidity"},
+          {"name": "ATORVASTATIN",  "dose": 20,  "indication": "Comorbidity"}
+        ]
+      }
+    },
+
+    "AE": {
+      "builder": "ae",
+      "onsetWindowDays": [0, 30],
+      "endLagDays": [1, 7],
+      "pool": ["Headache", "Nausea", "Hyperglycaemia", "Insomnia", "Dizziness", "Fatigue",
+               "Injection site bruising", "Dyspepsia"],
+      "outcomes": ["RECOVERED/RESOLVED", "RECOVERING/RESOLVING", "NOT RECOVERED/NOT RESOLVED"],
+      "openOutcome": "NOT RECOVERED/NOT RESOLVED",
+      "actions": ["DOSE NOT CHANGED", "DRUG WITHDRAWN", "DOSE REDUCED"]
+    },
+
+    "DS": {"builder": "ds"}
+  }
+}

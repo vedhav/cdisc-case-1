@@ -1,0 +1,118 @@
+{
+  "name": "cdisc-case-1",
+  "title": "CDISC Case 1 — NCT id to synthetic SDTM",
+  "description": "Given a ClinicalTrials.gov NCT id, fetch the study record, map it into a synthsdtm study config, then generate synthetic SDTM datasets and validate them with CDISC CORE. Datasets land in /output for download.",
+  "triggers": [
+    {
+      "name": "manual",
+      "type": "manual"
+    }
+  ],
+  "env": {
+    "GITHUB_TOKEN": "{{GITHUB_TOKEN}}",
+    "OPENROUTER_API_KEY": "{{OPENROUTER_API_KEY}}"
+  },
+  "externalSkillsRepo": {
+    "url": "https://github.com/vedhav/cdisc-case-1",
+    "commit": "0000000000000000000000000000000000000000",
+    "auth": "GITHUB_TOKEN"
+  },
+  "steps": [
+    {
+      "id": "provide-nct",
+      "name": "Provide NCT id",
+      "type": "creation",
+      "executor": "human",
+      "description": "Enter a ClinicalTrials.gov NCT id to synthesize.",
+      "params": [
+        {
+          "name": "nctId",
+          "type": "string",
+          "required": true,
+          "description": "ClinicalTrials.gov NCT id, e.g. NCT04556760"
+        }
+      ]
+    },
+    {
+      "id": "fetch-study",
+      "name": "Fetch Study Record",
+      "type": "creation",
+      "executor": "script",
+      "plugin": "script-container",
+      "description": "Deterministic. GET the CT.gov v2 record for {nctId}; write study.json to /workspace (for the next step) and /output (downloadable).",
+      "script": {
+        "image": "mediforce-agent:cdisc-case-1",
+        "repo": "vedhav/cdisc-case-1",
+        "commit": "0000000000000000000000000000000000000000",
+        "dockerfile": "Dockerfile",
+        "repoAuth": "GITHUB_TOKEN",
+        "command": "python3 /app/container/fetch.py"
+      }
+    },
+    {
+      "id": "build-config",
+      "name": "Build Study Config",
+      "type": "creation",
+      "executor": "agent",
+      "plugin": "claude-code-agent",
+      "description": "AI. Map the CT.gov record (/workspace/study.json) into a synthsdtm study_config.json using the build-config skill, self-validating with build_spec. Writes /workspace/study_config.json + /output/study_config.json.",
+      "env": {
+        "ANTHROPIC_AUTH_TOKEN": "{{OPENROUTER_API_KEY}}",
+        "ANTHROPIC_API_KEY": "",
+        "ANTHROPIC_BASE_URL": "https://openrouter.ai/api"
+      },
+      "agent": {
+        "skill": "build-config",
+        "skillsDir": "plugins/cdisc-case-1/skills",
+        "model": "~anthropic/claude-sonnet-latest",
+        "image": "mediforce-agent:cdisc-case-1",
+        "repo": "vedhav/cdisc-case-1",
+        "commit": "0000000000000000000000000000000000000000",
+        "dockerfile": "Dockerfile",
+        "repoAuth": "GITHUB_TOKEN",
+        "timeoutMinutes": 15
+      }
+    },
+    {
+      "id": "generate-sdtm",
+      "name": "Generate + Validate SDTM",
+      "type": "creation",
+      "executor": "script",
+      "plugin": "script-container",
+      "description": "Deterministic. Run synthsdtm (build_spec -> simulate_sdtm -> write_sdtm -> check_sdtm -> export_xpt -> CORE validate -> digest). SDTM CSVs, XPT, and the CORE report land in /output for download.",
+      "script": {
+        "image": "mediforce-agent:cdisc-case-1",
+        "repo": "vedhav/cdisc-case-1",
+        "commit": "0000000000000000000000000000000000000000",
+        "dockerfile": "Dockerfile",
+        "repoAuth": "GITHUB_TOKEN",
+        "timeoutMinutes": 30,
+        "command": "Rscript /app/container/generate.R --config /workspace/study_config.json --out /output"
+      }
+    },
+    {
+      "id": "done",
+      "name": "Done",
+      "type": "terminal",
+      "executor": "human"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "provide-nct",
+      "to": "fetch-study"
+    },
+    {
+      "from": "fetch-study",
+      "to": "build-config"
+    },
+    {
+      "from": "build-config",
+      "to": "generate-sdtm"
+    },
+    {
+      "from": "generate-sdtm",
+      "to": "done"
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+---
+title: "Getting started with synthsdtm"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with synthsdtm}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  # The pipeline writes to disk and resolves Controlled Terminology from the
+  # bundled snapshot. We show the calls and their expected (deterministic)
+  # output rather than running them while the vignette builds.
+  eval = FALSE
+)
+```
+
+`synthsdtm` generates synthetic, CDISC SDTMIG 3.4-shaped clinical-trial datasets
+from a single machine-readable study configuration. The guiding idea is that the
+**study is data, not code**: cohorts, design, the visit grid, test panels, and
+rate knobs all live in a `study_config.json`. One config-driven engine turns that
+config into SDTM datasets, so adapting to a new protocol means writing a new
+config — never editing R.
+
+Generation is **deterministic and seeded**: the same config, spec, CT, subject
+count, and seed always produce identical output. Shape-domain row counts (DM, IE,
+EX, DS, and the findings domains) are a closed-form function of the structural
+inputs and do not depend on the seed; only value cells vary, and they stay within
+documented bounds.
+
+```{r install}
+# from the package directory
+devtools::install(".")        # or devtools::load_all(".") during development
+library(synthsdtm)
+```
+
+`jsonlite` is required; `haven` is needed only for XPT export.
+
+## The pipeline at a glance
+
+```
+1. PLAN       study_config.json  +  build_spec()  → spec + pinned CT
+2. GENERATE   simulate_sdtm(config, spec, ct, n, seed)  → SDTM data.frames
+3. CHECK      check_sdtm()  → T1 Shape · T2 Conformance · T3 Cross-domain  (gate)
+              export_xpt() + digest_core()  → XPT v5 + CDISC CORE          (optional)
+```
+
+The package bundles a reference config for **NCT04556760** that we use throughout.
+
+```{r config}
+cfg <- system.file("configs", "NCT04556760.json", package = "synthsdtm")
+```
+
+## 1. Resolve the spec and Controlled Terminology
+
+`build_spec()` reads the config, selects the SDTMIG 3.4 variable spec for the
+in-scope domains, and pins Controlled Terminology from the bundled offline
+snapshot (no API key, fully reproducible). Passing `out_dir` also writes
+`sdtm_spec.json`, `ct_cache.json`, and `coverage.json`.
+
+```{r build-spec}
+built <- build_spec(cfg, out_dir = "runs/ref/config")
+names(built)
+#> [1] "spec"      "ct_cache"  "coverage"
+```
+
+If the config names a domain with no SDTMIG template, `build_spec()` fails fast
+and points you at `supported_domains()` (and the Findings-class shortcut) rather
+than silently dropping it.
+
+## 2. Generate the SDTM datasets
+
+`simulate_sdtm()` returns an `sdtm_sim` object — one `data.frame` per domain,
+plus lineage and summary metadata. `write_sdtm()` emits one `<DOMAIN>.csv` per
+domain along with the CORE metadata sidecars (`_datasets.csv`, `_variables.csv`),
+`lineage.json`, and `datasets_summary.json`.
+
+```{r simulate}
+res <- simulate_sdtm(cfg, built$spec, built$ct_cache,
+                     n_subjects = 40, seed = 1234)
+res$summary
+#> $DM 40   $IE 2   $VS 720   $EG 640   $LB 2080   $EX 80   $DS 40   ...
+
+head(res$domains$DM[, c("USUBJID", "ARMCD", "ARM", "AGE", "SEX")])
+
+write_sdtm(res, "runs/ref/sdtm")
+```
+
+`n_subjects` overrides the cohort sizes in the config (the cohort split is scaled
+to the requested total); omit it to use the config's own `Σn`. The seed defaults
+to `1234`.
+
+These row counts are exact and seed-independent for this config:
+
+| DM | IE | VS  | EG  | LB   | EX | DS |
+|----|----|-----|-----|------|----|----|
+| 40 | 2  | 720 | 640 | 2080 | 80 | 40 |
+
+The seed-dependent domains (MH, CM, AE) land within documented bounds.
+
+## 3. Check the output
+
+`check_sdtm()` recomputes the expected shape from the config and asserts on the
+data written to `run_dir`, across three tiers:
+
+- **T1 Shape** — exact row counts per domain, recomputed from the structural inputs.
+- **T2 Conformance** — variable presence/order, types, and Controlled Terminology.
+- **T3 Cross-domain** — referential and temporal consistency between domains.
+
+```{r check}
+rep <- check_sdtm(cfg, built$spec, built$ct_cache,
+                  run_dir = "runs/ref/sdtm", n_subjects = 40, seed = 1234)
+#> Accuracy checks: 126/126 passed
+#>   T1: .../... pass
+#>   T2: .../... pass
+#>   T3: .../... pass
+#> OVERALL: ALL PASS
+
+stopifnot(rep$allPass)
+rep$byTier
+```
+
+`rep` also carries `failures` (the failing checks, if any) and the full `checks`
+list, and a `check_report.json` is written into `run_dir`. Use `rep$allPass` as a
+gate in scripts.
+
+## Optional: CDISC CORE conformance
+
+Export SAS Transport (XPT v5) and, after running CORE against SDTMIG 3.4 + the
+pinned CT, classify the findings:
+
+```{r core}
+export_xpt("runs/ref/sdtm", built$spec, "runs/ref/sdtm_xpt")  # haven::write_xpt, v5
+# ...run CORE on the XPT, then:
+digest_core("runs/ref/core_report/core.json",
+            "runs/ref/core_report/summary.json")
+```
+
+`digest_core()` labels each finding as `data_bug` (fix the config and
+regenerate), `tabulation_gap`, or `harness`.
+
+## What domains can I generate?
+
+A study populates only the domains its protocol implies; every other domain is
+legitimately empty. Two helpers make scope explicit and auditable:
+
+```{r domains}
+supported_domains()   # domains generatable today (template + builder)
+sdtm_domains()        # full 63-domain inventory with class + supported/findings_ready status
+```
+
+Findings-class domains reuse a single generic builder, so adding one usually means
+adding a config test panel and a template entry — no new R builder. See the
+package README for the full extension guide.
+
+## Reproducibility in one line
+
+```r
+SDTM <- simulate_sdtm(config, spec, ct, n_subjects, seed)
+```
+
+Same inputs and seed ⇒ identical output. That contract is what lets `check_sdtm()`
+recompute the expected shape from the config alone and assert on it.

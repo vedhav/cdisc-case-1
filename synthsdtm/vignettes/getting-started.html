@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Getting started with synthsdtm</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Getting started with synthsdtm</h1>
+
+
+
+<p><code>synthsdtm</code> generates synthetic, CDISC SDTMIG 3.4-shaped
+clinical-trial datasets from a single machine-readable study
+configuration. The guiding idea is that the <strong>study is data, not
+code</strong>: cohorts, design, the visit grid, test panels, and rate
+knobs all live in a <code>study_config.json</code>. One config-driven
+engine turns that config into SDTM datasets, so adapting to a new
+protocol means writing a new config — never editing R.</p>
+<p>Generation is <strong>deterministic and seeded</strong>: the same
+config, spec, CT, subject count, and seed always produce identical
+output. Shape-domain row counts (DM, IE, EX, DS, and the findings
+domains) are a closed-form function of the structural inputs and do not
+depend on the seed; only value cells vary, and they stay within
+documented bounds.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># from the package directory</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install</span>(<span class="st">&quot;.&quot;</span>)        <span class="co"># or devtools::load_all(&quot;.&quot;) during development</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(synthsdtm)</span></code></pre></div>
+<p><code>jsonlite</code> is required; <code>haven</code> is needed only
+for XPT export.</p>
+<div id="the-pipeline-at-a-glance" class="section level2">
+<h2>The pipeline at a glance</h2>
+<pre><code>1. PLAN       study_config.json  +  build_spec()  → spec + pinned CT
+2. GENERATE   simulate_sdtm(config, spec, ct, n, seed)  → SDTM data.frames
+3. CHECK      check_sdtm()  → T1 Shape · T2 Conformance · T3 Cross-domain  (gate)
+              export_xpt() + digest_core()  → XPT v5 + CDISC CORE          (optional)</code></pre>
+<p>The package bundles a reference config for
+<strong>NCT04556760</strong> that we use throughout.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>cfg <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;configs&quot;</span>, <span class="st">&quot;NCT04556760.json&quot;</span>, <span class="at">package =</span> <span class="st">&quot;synthsdtm&quot;</span>)</span></code></pre></div>
+</div>
+<div id="resolve-the-spec-and-controlled-terminology" class="section level2">
+<h2>1. Resolve the spec and Controlled Terminology</h2>
+<p><code>build_spec()</code> reads the config, selects the SDTMIG 3.4
+variable spec for the in-scope domains, and pins Controlled Terminology
+from the bundled offline snapshot (no API key, fully reproducible).
+Passing <code>out_dir</code> also writes <code>sdtm_spec.json</code>,
+<code>ct_cache.json</code>, and <code>coverage.json</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>built <span class="ot">&lt;-</span> <span class="fu">build_spec</span>(cfg, <span class="at">out_dir =</span> <span class="st">&quot;runs/ref/config&quot;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(built)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;spec&quot;      &quot;ct_cache&quot;  &quot;coverage&quot;</span></span></code></pre></div>
+<p>If the config names a domain with no SDTMIG template,
+<code>build_spec()</code> fails fast and points you at
+<code>supported_domains()</code> (and the Findings-class shortcut)
+rather than silently dropping it.</p>
+</div>
+<div id="generate-the-sdtm-datasets" class="section level2">
+<h2>2. Generate the SDTM datasets</h2>
+<p><code>simulate_sdtm()</code> returns an <code>sdtm_sim</code> object
+— one <code>data.frame</code> per domain, plus lineage and summary
+metadata. <code>write_sdtm()</code> emits one
+<code>&lt;DOMAIN&gt;.csv</code> per domain along with the CORE metadata
+sidecars (<code>_datasets.csv</code>, <code>_variables.csv</code>),
+<code>lineage.json</code>, and <code>datasets_summary.json</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">simulate_sdtm</span>(cfg, built<span class="sc">$</span>spec, built<span class="sc">$</span>ct_cache,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">n_subjects =</span> <span class="dv">40</span>, <span class="at">seed =</span> <span class="dv">1234</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>summary</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $DM 40   $IE 2   $VS 720   $EG 640   $LB 2080   $EX 80   $DS 40   ...</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res<span class="sc">$</span>domains<span class="sc">$</span>DM[, <span class="fu">c</span>(<span class="st">&quot;USUBJID&quot;</span>, <span class="st">&quot;ARMCD&quot;</span>, <span class="st">&quot;ARM&quot;</span>, <span class="st">&quot;AGE&quot;</span>, <span class="st">&quot;SEX&quot;</span>)])</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">write_sdtm</span>(res, <span class="st">&quot;runs/ref/sdtm&quot;</span>)</span></code></pre></div>
+<p><code>n_subjects</code> overrides the cohort sizes in the config (the
+cohort split is scaled to the requested total); omit it to use the
+config’s own <code>Σn</code>. The seed defaults to
+<code>1234</code>.</p>
+<p>These row counts are exact and seed-independent for this config:</p>
+<table>
+<thead>
+<tr class="header">
+<th>DM</th>
+<th>IE</th>
+<th>VS</th>
+<th>EG</th>
+<th>LB</th>
+<th>EX</th>
+<th>DS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>40</td>
+<td>2</td>
+<td>720</td>
+<td>640</td>
+<td>2080</td>
+<td>80</td>
+<td>40</td>
+</tr>
+</tbody>
+</table>
+<p>The seed-dependent domains (MH, CM, AE) land within documented
+bounds.</p>
+</div>
+<div id="check-the-output" class="section level2">
+<h2>3. Check the output</h2>
+<p><code>check_sdtm()</code> recomputes the expected shape from the
+config and asserts on the data written to <code>run_dir</code>, across
+three tiers:</p>
+<ul>
+<li><strong>T1 Shape</strong> — exact row counts per domain, recomputed
+from the structural inputs.</li>
+<li><strong>T2 Conformance</strong> — variable presence/order, types,
+and Controlled Terminology.</li>
+<li><strong>T3 Cross-domain</strong> — referential and temporal
+consistency between domains.</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>rep <span class="ot">&lt;-</span> <span class="fu">check_sdtm</span>(cfg, built<span class="sc">$</span>spec, built<span class="sc">$</span>ct_cache,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">run_dir =</span> <span class="st">&quot;runs/ref/sdtm&quot;</span>, <span class="at">n_subjects =</span> <span class="dv">40</span>, <span class="at">seed =</span> <span class="dv">1234</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Accuracy checks: 126/126 passed</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   T1: .../... pass</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   T2: .../... pass</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   T3: .../... pass</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; OVERALL: ALL PASS</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(rep<span class="sc">$</span>allPass)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>rep<span class="sc">$</span>byTier</span></code></pre></div>
+<p><code>rep</code> also carries <code>failures</code> (the failing
+checks, if any) and the full <code>checks</code> list, and a
+<code>check_report.json</code> is written into <code>run_dir</code>. Use
+<code>rep$allPass</code> as a gate in scripts.</p>
+</div>
+<div id="optional-cdisc-core-conformance" class="section level2">
+<h2>Optional: CDISC CORE conformance</h2>
+<p>Export SAS Transport (XPT v5) and, after running CORE against SDTMIG
+3.4 + the pinned CT, classify the findings:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">export_xpt</span>(<span class="st">&quot;runs/ref/sdtm&quot;</span>, built<span class="sc">$</span>spec, <span class="st">&quot;runs/ref/sdtm_xpt&quot;</span>)  <span class="co"># haven::write_xpt, v5</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ...run CORE on the XPT, then:</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">digest_core</span>(<span class="st">&quot;runs/ref/core_report/core.json&quot;</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;runs/ref/core_report/summary.json&quot;</span>)</span></code></pre></div>
+<p><code>digest_core()</code> labels each finding as
+<code>data_bug</code> (fix the config and regenerate),
+<code>tabulation_gap</code>, or <code>harness</code>.</p>
+</div>
+<div id="what-domains-can-i-generate" class="section level2">
+<h2>What domains can I generate?</h2>
+<p>A study populates only the domains its protocol implies; every other
+domain is legitimately empty. Two helpers make scope explicit and
+auditable:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">supported_domains</span>()   <span class="co"># domains generatable today (template + builder)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sdtm_domains</span>()        <span class="co"># full 63-domain inventory with class + supported/findings_ready status</span></span></code></pre></div>
+<p>Findings-class domains reuse a single generic builder, so adding one
+usually means adding a config test panel and a template entry — no new R
+builder. See the package README for the full extension guide.</p>
+</div>
+<div id="reproducibility-in-one-line" class="section level2">
+<h2>Reproducibility in one line</h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>SDTM <span class="ot">&lt;-</span> <span class="fu">simulate_sdtm</span>(config, spec, ct, n_subjects, seed)</span></code></pre></div>
+<p>Same inputs and seed ⇒ identical output. That contract is what lets
+<code>check_sdtm()</code> recompute the expected shape from the config
+alone and assert on it.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
