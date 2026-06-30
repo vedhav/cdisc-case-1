@@ -38,8 +38,17 @@ cat "$EXAMPLE"    # a minimal, valid config to mirror
    - `design`: `parallel`, `crossover`, or `single-group` — infer from
      `designModule` (allocation / interventionModel). Default `parallel`.
    - `cohorts`: one per arm in `armsInterventionsModule.armGroups` (use `armcd`
-     from a short uppercase code, `arm` from the label, `n: 10`, `treatments`
-     from the arm's interventions). If single-arm, one cohort.
+     from a short uppercase code, `arm` from the label, `treatments`
+     from the arm's interventions). If single-arm, one cohort. Set each cohort's
+     `n` by distributing the **trial's real enrollment** across the arms so the
+     synthetic study reflects *this* trial, not a fixed template:
+     - Read `enrollment` from `protocolSection.designModule.enrollmentInfo.count`.
+     - `target = min(enrollment, 100)` — cap at 100 so generation + CORE stay fast.
+       If `enrollmentInfo.count` is missing or smaller than the number of arms,
+       use `target = 10 × (number of arms)` as a fallback.
+     - Split `target` as evenly as possible across the arms, every cohort `n ≥ 1`,
+       and give the remainder to the first cohort(s) so `Σ n == target`.
+       (e.g. enrollment 246, 3 arms → target 100 → `n` = 34, 33, 33.)
    - `demographics`: derive `ageRange` from `eligibilityModule` min/max age
      (default `[18, 75]`), `sexes` from `sex` (`["M","F"]` if ALL), and sensible
      defaults for `races`, `ethnicities`, `heightCm` `[150,190]`, `weightKg` `[50,100]`.
@@ -68,5 +77,7 @@ cat "$EXAMPLE"    # a minimal, valid config to mirror
 
 - Obey the schema exactly: only listed keys (`additionalProperties: false`), all
   `required` keys present, arrays like `ageRange`/`heightCm` are 2-element pairs.
-- Keep subject counts small (`n: 10` per cohort) so generation is fast.
+- Cohort `n` comes from the trial's enrollment (`enrollmentInfo.count`), capped at
+  100 total and split across arms — never a fixed per-cohort number. The cap keeps
+  generation fast while letting subject counts vary by trial.
 - Do not invent CT codes; leave `bcNcit` null. Do not generate SDTM here.
